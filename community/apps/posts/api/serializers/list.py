@@ -38,6 +38,7 @@ class PostListSerializer(ModelSerializer):
 
     liked_users = serializers.SerializerMethodField()
     commented_users = serializers.SerializerMethodField()
+    user_like_type = serializers.SerializerMethodField()
 
     class Meta:
         model = Post
@@ -64,7 +65,8 @@ class PostListSerializer(ModelSerializer):
             'is_agenda',
 
             # Serializer
-            'is_bookmarked', 'is_liked', 'is_disliked', 'liked_users', 'is_friend', 'is_kept', 'commented_users'
+            'is_bookmarked', 'is_liked', 'is_disliked', 'liked_users', 'is_friend', 'is_kept', 'commented_users',
+            'user_like_type'
         )
 
     def prefetch_related(self, queryset, user):
@@ -165,3 +167,17 @@ class PostListSerializer(ModelSerializer):
         if not post_dislike:
             return False
         return True
+
+    def get_user_like_type(self, obj):
+        request = self.context.get('request', None)
+        if not request:
+            return None
+        user = request.user
+        if not user.id:
+            return None
+        if hasattr(obj, 'user_active_likes'):
+            post_like = obj.user_active_likes[:1]
+            if not post_like:
+                return None
+            return post_like.type
+        return None
