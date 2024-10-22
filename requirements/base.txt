@@ -85,3 +85,7 @@ django-modeltranslation
 celery[sqs]
 django-celery-results
 django-celery-beat
+
+# Kafka
+# ------------------------------------------------------------------------------
+aiokafka==0.11.0
