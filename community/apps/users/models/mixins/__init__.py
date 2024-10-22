@@ -1,4 +1,3 @@
-from community.apps.users.models.mixins.auth import UserAuthModelMixin
 from community.apps.users.models.mixins.bookmark import UserPostBookmarkModelMixin
 from community.apps.users.models.mixins.comment import UserCommentModelMixin
 from community.apps.users.models.mixins.friend import UserFriendModelMixin

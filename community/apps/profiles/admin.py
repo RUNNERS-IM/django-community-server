@@ -8,7 +8,6 @@ from community.apps.profiles.models import Profile
 from community.bases.admin import Admin
 
 
-@admin.register(Profile)
 class ProfileAdmin(Admin):
     list_display = (
         "community",

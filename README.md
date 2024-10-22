@@ -1,9 +1,7 @@
-# Club Category
+# Club Category Server
 
 [![Built with Cookiecutter Django](https://img.shields.io/badge/built%20with-Cookiecutter%20Django-ff69b4.svg?logo=cookiecutter)](https://github.com/cookiecutter/cookiecutter-django/)
 [![Black code style](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/ambv/black)
-
-License: MIT
 
 ## Basic Settings
 
@@ -116,8 +114,4 @@ Install openssl and pycurl, and Run Celery worker for this `Project-Name`
     $ celery beat -A community worker --loglevel=INFO
 
 
-## Dump and load data 
-'''
-python manage.py dumpdata --output fixtures/fixture.json --indent 2 --exclude auth.permission --exclude authtoken --exclude contenttypes
-python manage.py loaddata fixtures/fixture.json
-'''
+

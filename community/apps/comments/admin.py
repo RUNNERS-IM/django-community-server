@@ -4,7 +4,6 @@ from django.utils.html import format_html
 
 # Models
 from community.apps.comments.models import Comment
-
 # Bases
 from community.bases.admin import Admin
 

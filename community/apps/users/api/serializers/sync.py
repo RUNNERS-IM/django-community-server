@@ -9,26 +9,32 @@ from community.bases.api.serializers import ModelSerializer
 # Main Section
 class AdminUserSyncSerializer(ModelSerializer):
     id = serializers.IntegerField()
+    password = serializers.CharField(required=False)
+    username = serializers.CharField(required=False)
 
     class Meta:
         model = User
-        fields = ("id", "password", "admin_email", "username")
+        fields = ("id", "password", "username")
 
     def create(self, validated_data):
+        password = validated_data.pop("password", None)
         validated_data.setdefault("is_staff", True)
         validated_data.setdefault("is_superuser", True)
         instance = User.objects.create(**validated_data)
-
+        if password:
+            instance.set_password(password)
+            instance.save()
         return instance
 
     def update(self, instance, validated_data):
-        del validated_data["id"]
-
-        if not instance.is_staff or not instance.is_superuser:
-            validated_data.setdefault("is_staff", True)
-            validated_data.setdefault("is_superuser", True)
-
-        instance.update(**validated_data)
+        password = validated_data.pop("password", None)
+        validated_data.setdefault("is_staff", True)
+        validated_data.setdefault("is_superuser", True)
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        if password:
+            instance.set_password(password)
+        instance.save()
         return instance
 
 
@@ -47,6 +53,7 @@ class UserSyncSerializer(ModelSerializer):
             "gender",
             "birth",
             "nation",
+            "religion",
             "level",
             "grade_title",
             "ring_color",

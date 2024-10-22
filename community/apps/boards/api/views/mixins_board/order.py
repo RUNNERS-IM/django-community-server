@@ -20,7 +20,7 @@ from community.apps.boards.models import Board, BoardGroup
 # Utils
 from community.utils.api.response import Response
 from community.utils.decorators import swagger_decorator
-from community.utils.exception_handlers import CustomForbiddenException
+from community.utils.exception_handlers import PermissionDenied
 
 
 # Main Section
@@ -71,4 +71,4 @@ class BoardOrderViewMixin:
                 message="ok",
                 data=BoardGroupListSerializer(instance=board.board_group, context={"request": request}).data,
             )
-        raise CustomForbiddenException("보드 수정 권한이 없습니다.")
+        raise PermissionDenied("보드 수정 권한이 없습니다.")

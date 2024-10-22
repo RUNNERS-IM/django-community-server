@@ -1,16 +1,14 @@
 # Django
-from django.contrib import admin
 from django.utils.html import format_html
-
-# Models
-from community.apps.badges.models import Badge
 
 # Bases
 from community.bases.admin import Admin
 
 
+# Models
+
+
 # Main Section
-@admin.register(Badge)
 class BadgeAdmin(Admin):
     list_display = ("image_tag", "title", "model_type")
     search_fields = ("title", "model_type")

@@ -5,13 +5,10 @@ from django.utils.translation import gettext_lazy as _
 
 # Fields
 from community.apps.users.models.fields.phone_number import CustomPhoneNumberField
-
 # Manager
 from community.apps.users.models.managers.objects import UserMainManager
-
 # Mixins
 from community.apps.users.models.mixins import (
-    UserAuthModelMixin,
     UserCommentModelMixin,
     UserFriendModelMixin,
     UserImageModelMixin,
@@ -20,17 +17,14 @@ from community.apps.users.models.mixins import (
     UserPostModelMixin,
     UserSyncModelMixin,
 )
-
 # Bases
 from community.bases.models import Model
-
 # Modules
 from community.modules.choices import USER_STATUS_CHOICES
 
 
 # Main Section
 class User(
-    UserAuthModelMixin,
     UserImageModelMixin,
     UserPostModelMixin,
     UserCommentModelMixin,
@@ -41,7 +35,11 @@ class User(
     AbstractUser,
     Model,
 ):
-    id = models.AutoField(primary_key=True)
+    id_creta = models.CharField(_("ID (Creta)"), max_length=255, unique=True, null=True, blank=True)
+    is_two_factor = models.BooleanField(_("Is Two Factor (Creta)"), default=False)
+    token_creta = models.CharField(_("Token (Creta)"), max_length=512, null=True, blank=True)
+    token_creta_expired_at = models.DateTimeField(_("Token Expired At (Creta)"), null=True, blank=True)
+
     email = models.EmailField(_("Email"), null=True, blank=True)
     username = models.CharField(_("Nickname"), max_length=100, null=True, blank=True)
     phone = CustomPhoneNumberField(_("Phone"), max_length=20, null=True, blank=True)
@@ -57,6 +55,7 @@ class User(
     gender = models.CharField(_("Gender"), max_length=20, null=True, blank=True)
     birth = models.DateField(_("Birth"), null=True, blank=True)
     nation = models.CharField(_("Nation"), max_length=255, null=True, blank=True)
+    religion = models.CharField(_("Religion"), max_length=40, null=True, blank=True)
     sdk_id = models.IntegerField(_("Sdk Id"), null=True)
     sdk_uuid = models.UUIDField(_("Sdk UUID"), null=True, blank=True)
 
@@ -65,7 +64,7 @@ class User(
         "badges.Badge", verbose_name=_("Badge"), on_delete=models.SET_NULL, null=True, related_name="users"
     )
 
-    USERNAME_FIELD = "admin_email"
+    USERNAME_FIELD = "email"
     REQUIRED_FIELDS = []
 
     objects = UserMainManager()

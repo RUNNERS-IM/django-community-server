@@ -9,7 +9,6 @@ from community.bases.admin import Admin
 
 
 # Main Section
-@admin.register(PostBookmark)
 class PostBookmarkAdmin(Admin):
     list_display = ("post", "user")
     search_fields = ("post__title", "user__email")

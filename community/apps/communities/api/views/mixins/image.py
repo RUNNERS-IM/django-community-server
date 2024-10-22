@@ -18,7 +18,7 @@ from community.apps.communities.models.mixins.image import default_banner_image_
 # Utils
 from community.utils.api.response import Response
 from community.utils.decorators import swagger_decorator
-from community.utils.exception_handlers import CustomForbiddenException
+from community.utils.exception_handlers import PermissionDenied
 
 
 class CommunityImageViewMixin(GenericAPIView):
@@ -41,7 +41,7 @@ class CommunityImageViewMixin(GenericAPIView):
             if serializer.is_valid(raise_exception=True):
                 serializer.save()
                 return Response(status=status.HTTP_200_OK, code=200, message="ok", data=serializer.data)
-        raise CustomForbiddenException("community 관리자가 아닙니다.")
+        raise PermissionDenied("community 관리자가 아닙니다.")
 
     @swagger_auto_schema(
         **swagger_decorator(
@@ -62,7 +62,7 @@ class CommunityImageViewMixin(GenericAPIView):
             if serializer.is_valid(raise_exception=True):
                 serializer.save()
                 return Response(status=status.HTTP_200_OK, code=200, message="ok", data=serializer.data)
-        raise CustomForbiddenException("community 관리자가 아닙니다.")
+        raise PermissionDenied("community 관리자가 아닙니다.")
 
     @swagger_auto_schema(
         **swagger_decorator(

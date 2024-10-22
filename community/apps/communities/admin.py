@@ -3,15 +3,15 @@ from django.contrib import admin
 
 # Models
 from community.apps.communities.models import Community
-
 # Inline
 from community.apps.community_users.inline import CommunityUserInline
-
 # Bases
 from community.bases.admin import Admin
 
 
 # Main Section
+
+
 @admin.register(Community)
 class CommunityAdmin(Admin):
     list_display = (

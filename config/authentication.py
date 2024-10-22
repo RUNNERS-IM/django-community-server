@@ -2,137 +2,84 @@
 from urllib.parse import urljoin
 
 import requests
-
 # Django
 from django.conf import settings
+from django.contrib.auth import get_user_model
 from django.utils.translation import gettext_lazy as _
+from rest_framework.authentication import BaseAuthentication
+# DRF
+from rest_framework.exceptions import AuthenticationFailed
 
-# Third Party
-from rest_framework_simplejwt.authentication import JWTAuthentication
-from rest_framework_simplejwt.exceptions import AuthenticationFailed, InvalidToken
-from rest_framework_simplejwt.settings import api_settings
-
-# Models
+# Apps
 from community.apps.badges.models import Badge
-
-# Tasks
-from community.apps.users.tasks import user_task
 
 
 # Main section
-class Authentication(JWTAuthentication):
-    def get_user(self, validated_token):
-        try:
-            user_id = validated_token[api_settings.USER_ID_CLAIM]
-        except KeyError:
-            raise InvalidToken(_("Token contained no recognizable user identification"))
-        try:
+class Authentication(BaseAuthentication):
+    def __init__(self):
+        self.user_model = get_user_model()
 
-            user = self.user_model.objects.filter(**{api_settings.USER_ID_FIELD: user_id}).first()
+    def authenticate(self, request):
+        auth_header = request.headers.get('Authorization')
+        partner_key = request.headers.get('Partner-Key')
+        partner_secret_key = request.headers.get('Partner-Secret-Key')
 
-            url = urljoin(settings.SUPERCLUB_SERVER_HOST, f"/api/{settings.SUPERCLUB_API_VERSION}/user/me")
-            headers = {"Content-Type": "application/json", "Authorization": "Bearer " + str(validated_token)}
-            response = requests.request("GET", url, headers=headers)
-            data = response.json()
-            print("data : ", data)
+        if not auth_header:
+            return None
 
-            if user_info := data.get("data", None):
+        token = auth_header.split(' ')[1] if ' ' in auth_header else auth_header
 
-                username = user_info.get("username", None)
-                email = user_info.get("email", None)
-                phone = user_info.get("phone", None)
-                level = user_info.get("level", None)
-                grade_title = user_info.get("grade_title", None)
-                ring_color = user_info.get("ring_color", None)
-                badge_image_url = user_info.get("badge_image_url", None)
-                profile_image_url = user_info.get("profile_image_url", None)
-                banner_image_url = user_info.get("banner_image_url", None)
-                friend_count = user_info.get("friend_count", None)
-                status = user_info.get("status", None)
-                wallet_address = user_info.get("wallet_address", None)
-                gender = user_info.get("gender", None)
-                birth = user_info.get("birth", None)
-                nation = user_info.get("nation", None)
-                sdk_id = user_info.get("sdk_id", None)
-                sdk_uuid = user_info.get("sdk_uuid", None)
-                card_profile_image_url = user_info.get("card_profile_image_url", None)
-                badge_title_en = user_info.get("badge_title_en", None)
+        # 1. 주어진 토큰으로 사용자가 존재하는지 확인
+        user = self.user_model.objects.filter(token_creta=token).first()
+        if user:
+            return (user, token)
 
-                if user:
-                    user_badge_title_en = user.badge.title_en if user.badge else None
-                    if (
-                        user.username != username
-                        or user.phone != phone
-                        or user.email != email
-                        or user.level != level
-                        or user.grade_title != grade_title
-                        or user.ring_color != ring_color
-                        or user.badge_image_url != badge_image_url
-                        or user.profile_image_url != profile_image_url
-                        or user.banner_image_url != banner_image_url
-                        or user.friend_count != friend_count
-                        or user.status != status
-                        or user.wallet_address != wallet_address
-                        or user.gender != gender
-                        or user.birth != birth
-                        or user.nation != nation
-                        or user.sdk_id != sdk_id
-                        or user.sdk_uuid != sdk_uuid
-                        or user.card_profile_image_url != card_profile_image_url
-                        or badge_title_en != user_badge_title_en
-                    ):
-                        user_task.delay(
-                            user.id,
-                            username,
-                            email,
-                            phone,
-                            level,
-                            grade_title,
-                            ring_color,
-                            badge_image_url,
-                            profile_image_url,
-                            banner_image_url,
-                            friend_count,
-                            status,
-                            wallet_address,
-                            gender,
-                            birth,
-                            nation,
-                            sdk_id,
-                            sdk_uuid,
-                            card_profile_image_url,
-                            badge_title_en,
-                        )
+        # 2. 사용자가 존재하지 않는 경우, Superclub 공통 서버에서 사용자 세부 정보를 가져옴
+        url = urljoin(settings.SUPERCLUB_SERVER_HOST, f"/api/{settings.SUPERCLUB_API_VERSION}/user/me")
 
-                if not user:
-                    user_data = {
-                        api_settings.USER_ID_FIELD: user_id,
-                        "username": username,
-                        "email": email,
-                        "phone": phone,
-                        "level": level,
-                        "grade_title": grade_title,
-                        "ring_color": ring_color,
-                        "badge_image_url": badge_image_url,
-                        "profile_image_url": profile_image_url,
-                        "banner_image_url": banner_image_url,
-                        "friend_count": friend_count,
-                        "status": status,
-                        "wallet_address": wallet_address,
-                        "gender": gender,
-                        "birth": birth,
-                        "nation": nation,
-                        "sdk_id": sdk_id,
-                        "sdk_uuid": sdk_uuid,
-                        "card_profile_image_url": card_profile_image_url,
-                        "badge": Badge.objects.filter(title_en=badge_title_en, model_type="COMMON").first(),
-                    }
+        headers = {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer " + str(token)
+        }
 
-                    user = self.user_model.objects.create(**user_data)
+        if partner_key and partner_secret_key:
+            headers["Partner-Key"] = partner_key
+            headers["Partner-Secret-Key"] = partner_secret_key
 
-        except self.user_model.DoesNotExist:
-            raise AuthenticationFailed(_("User not found"), code="user_not_found")
+        response = requests.get(url, headers=headers)
+        if response.status_code != 200:
+            raise AuthenticationFailed(_("Failed to retrieve user data from Superclub server"))
 
-        if user and not user.is_active:
-            raise AuthenticationFailed(_("User is inactive"), code="user_inactive")
-        return user
+        data = response.json()
+        user_data = data.get("data", None)
+        if not user_data:
+            raise AuthenticationFailed(_("Invalid user data from Superclub server"))
+
+        # 3. 배지가 있으면 할당
+        badge_data = user_data.pop("badge", None)
+        user_data['token_creta'] = token
+
+        # User 모델에 존재하는 필드만 포함하도록 user_data 필터링
+        user_fields = {field.name for field in self.user_model._meta.get_fields()}
+        filtered_user_data = {k: v for k, v in user_data.items() if k in user_fields}
+
+        if badge_title_en := badge_data['title']:
+            filtered_user_data["badge"] = Badge.objects.filter(title_en=badge_title_en, model_type="COMMON").first()
+
+        # 4. ID로 사용자가 이미 존재하는지 확인하고 업데이트 또는 생성
+        id_user = filtered_user_data["id"]
+        id_creta = filtered_user_data["id_creta"]
+
+        user = self.user_model.objects.filter(id=id_user).first()
+        users_removed = self.user_model.objects.filter(id_creta=id_creta).exclude(id=id_user)
+        if users_removed.exists():
+            users_removed.update(id_creta=None)
+
+        if user:
+            for key, value in filtered_user_data.items():
+                setattr(user, key, value)
+            user.save()
+        else:
+            user = self.user_model.objects.create(**filtered_user_data)
+
+        return (user, token)
