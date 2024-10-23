@@ -25,9 +25,6 @@ from community.apps.communities.api.views import (
     CommunityViewSet,
 )
 
-# Friend
-from community.apps.friends.api.views import FriendRequestViewSet, FriendViewSet
-
 # Like
 from community.apps.likes.api.views import CommentLikesViewSet, PostLikesViewSet
 
@@ -60,10 +57,6 @@ router.register(r"posts", PostsViewSet, basename="posts")
 
 # Comment Section
 router.register("comment", CommentViewSet)
-
-# Friend Section
-router.register("friend-request", FriendRequestViewSet)
-router.register("friend", FriendViewSet)
 
 # Ban Section
 router.register("ban", BanViewSet)
