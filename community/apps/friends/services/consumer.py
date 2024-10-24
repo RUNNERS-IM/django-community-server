@@ -74,7 +74,7 @@ class FriendConsumerService(KafkaConsumerService):
         if not instance:
             return
 
-        serializer = FriendSyncSerializer(instance=instance, data=data)
+        serializer = FriendSyncSerializer(instance=instance, data=data, partial=True)
         if serializer.is_valid():
             serializer.save()
 
