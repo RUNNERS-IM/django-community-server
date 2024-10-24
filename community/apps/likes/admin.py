@@ -1,14 +1,3 @@
-# Django
-from django.contrib import admin
-
-# Models
-from community.apps.likes.models import (
-    CommentDislike,
-    CommentLike,
-    PostDislike,
-    PostLike,
-)
-
 # Bases
 from community.bases.admin import Admin
 

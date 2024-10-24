@@ -19,10 +19,10 @@ class BanSyncViewMixin:
     )
     @action(detail=True, methods=["post"])
     def sync(self, request, *args, **kwargs):
-        ban = self.get_object()
-        serializer = UserBanSyncSerializer(instance=ban, data=request.data, partial=True)
-        if serializer.is_valid(raise_exception=True):
-            serializer.save()
+        # ban = self.get_object()
+        # serializer = UserBanSyncSerializer(instance=ban, data=request.data, partial=True)
+        # if serializer.is_valid(raise_exception=True):
+        #     serializer.save()
             return Response(
-                status=status.HTTP_200_OK, code=200, message="ok", data=UserBanSyncSerializer(instance=ban).data
+                status=status.HTTP_200_OK, code=200, message="ok"
             )

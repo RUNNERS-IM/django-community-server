@@ -4,7 +4,12 @@ from abc import ABC, abstractmethod
 
 from aiokafka import AIOKafkaConsumer, AIOKafkaProducer
 
-from config.settings.base import KAFKA_BROKER_URLS, KAFKA_GROUP_ID
+from config.settings.base import (
+    KAFKA_BROKER_URLS,
+    KAFKA_GROUP_ID,
+    KAFKA_SASL_PASSWORD,
+    KAFKA_SASL_USERNAME,
+)
 
 
 # Main Section
@@ -45,8 +50,8 @@ class KafkaConsumerService(ABC):
             group_id=self.group_id,
             security_protocol="SASL_SSL",
             sasl_mechanism="SCRAM-SHA-512",
-            sasl_plain_username="runners",
-            sasl_plain_password="Run0601!",
+            sasl_plain_username=KAFKA_SASL_USERNAME,
+            sasl_plain_password=KAFKA_SASL_PASSWORD,
             auto_offset_reset="earliest",
             ssl_context=self.create_ssl_context(),
         )
@@ -71,11 +76,7 @@ class KafkaConsumerService(ABC):
 
         try:
             async for msg in self.consumer:
-                try:
-                    print(f"{self.topic} Topic's Value : {msg}")
-                    await self.process_message(msg)
-                except Exception as e:
-                    print(f"An error occurred while processing message: {e}")
+                await self.process_message(msg)
         finally:
             await self.stop_consumer()
 
@@ -116,11 +117,12 @@ class KafkaProducerService:
             bootstrap_servers=KAFKA_BROKER_URLS,
             security_protocol="SASL_SSL",
             sasl_mechanism="SCRAM-SHA-512",
-            sasl_plain_username="runners",
-            sasl_plain_password="Run0601!",
+            sasl_plain_username=KAFKA_SASL_USERNAME,
+            sasl_plain_password=KAFKA_SASL_PASSWORD,
             ssl_context=self.create_ssl_context(),
         )
         await self.producer.start()
+
 
     async def send_messages(self, messages: list):
         """

@@ -431,9 +431,6 @@ SWAGGER_SETTINGS = {
     "TAGS_SORTER": "alpha",
 }
 
-private_key = open(BASE_DIR + "/private_key.pem", "rb").read()
-public_key = open(BASE_DIR + "/public_key.pem", "rb").read()
-
 # 28. Crontab
 # ------------------------------------------------------------------------------
 CRONJOBS = [
@@ -515,6 +512,7 @@ if SENTRY_DSN := env("SENTRY_DSN", default=None):
 # 33. Creta
 # ------------------------------------------------------------------------------
 CRETA_AUTH_BASE_URL = env("CRETA_AUTH_BASE_URL")
+
 
 # 34. KAFKA
 # ------------------------------------------------------------------------------
