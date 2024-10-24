@@ -4,9 +4,6 @@ from django.urls import include, path
 # DRF
 from rest_framework_nested import routers
 
-# Ban
-from community.apps.bans.api.views import BanViewSet
-
 # Board
 from community.apps.boards.api.views import (
     BoardAdminViewSet,
@@ -57,9 +54,6 @@ router.register(r"posts", PostsViewSet, basename="posts")
 
 # Comment Section
 router.register("comment", CommentViewSet)
-
-# Ban Section
-router.register("ban", BanViewSet)
 
 # Board Admin Section
 router.register("admin/board", BoardAdminViewSet)
