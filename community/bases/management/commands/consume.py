@@ -1,9 +1,8 @@
-# Third Party
 import asyncio
 
-# Django
 from django.core.management.base import BaseCommand
 
+from community.apps.bans.services.consumer import BanConsumerService
 from community.apps.friends.services.consumer import (
     FriendConsumerService,
     FriendRequestConsumerService,
@@ -15,6 +14,7 @@ class Command(BaseCommand):
     help = "Consume messages"
 
     consumers = [
+        BanConsumerService,
         FriendRequestConsumerService,
         FriendConsumerService,
     ]
