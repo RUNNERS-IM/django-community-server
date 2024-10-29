@@ -7,6 +7,7 @@ from community.apps.friends.services.consumer import (
     FriendConsumerService,
     FriendRequestConsumerService,
 )
+from community.apps.users.services import UserConsumerService
 
 
 # Main Section
@@ -17,6 +18,7 @@ class Command(BaseCommand):
         BanConsumerService,
         FriendRequestConsumerService,
         FriendConsumerService,
+        UserConsumerService,
     ]
 
     def handle(self, *args, **options):
