@@ -365,6 +365,14 @@ REST_FRAMEWORK = {
         "rest_framework.authentication.SessionAuthentication",
         "rest_framework.authentication.TokenAuthentication",
     ),
+    "DEFAULT_THROTTLE_CLASSES": [
+        "rest_framework.throttling.AnonRateThrottle",
+        "rest_framework.throttling.UserRateThrottle",
+    ],
+    "DEFAULT_THROTTLE_RATES": {
+        "anon": "50/second",
+        "user": "50/second",
+    },
     "DEFAULT_PERMISSION_CLASSES": ("rest_framework.permissions.AllowAny",),
     "EXCEPTION_HANDLER": "community.utils.exception_handlers.exception_handler",
     "NON_FIELD_ERRORS_KEY": "non_field_errors",
@@ -469,14 +477,25 @@ if REDIS_URL:
     CACHES = {
         "default": {
             "BACKEND": "django_redis.cache.RedisCache",
-            "LOCATION": f"{REDIS_URL}/5",
+            "LOCATION": f"{REDIS_URL}/1",
             "OPTIONS": {
                 "CLIENT_CLASS": "django_redis.client.DefaultClient",
                 "IGNORE_EXCEPTIONS": True,
                 "REPLICA_SET": {
-                    "urls": [f"{REDIS_REPLICA_URL}/6"] if REDIS_REPLICA_URL else [],
+                    "urls": [f"{REDIS_REPLICA_URL}/1"] if REDIS_REPLICA_URL else [],
+                },
+                "CONNECTION_POOL_KWARGS": {
+                    "socket_connect_timeout": 5,
+                    "socket_timeout": 5,
                 },
             },
+        }
+    }
+else:
+    CACHES = {
+        "default": {
+            "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+            "LOCATION": "unique-snowflake",
         }
     }
 
