@@ -123,6 +123,7 @@ class KafkaProducerService:
         )
         await self.producer.start()
 
+
     async def send_messages(self, messages: list):
         """
         메시지를 Kafka 토픽으로 전송합니다.

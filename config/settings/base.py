@@ -465,7 +465,7 @@ CELERY_BROKER_TRANSPORT_OPTIONS = {
     "visibility_timeout": 3600,
     "polling_interval": 60,
     "CELERYD_PREFETCH_MULTIPLIER": 0,
-    "queue_name_prefix": f"clubcategory-{ENVIRONMENT}-",
+    "queue_name_prefix": f"forumcategory-{ENVIRONMENT}-",
 }
 
 # 30. Redis
@@ -532,7 +532,8 @@ if SENTRY_DSN := env("SENTRY_DSN", default=None):
 # ------------------------------------------------------------------------------
 CRETA_AUTH_BASE_URL = env("CRETA_AUTH_BASE_URL")
 
-# KAFKA
+
+# 34. KAFKA
 # ------------------------------------------------------------------------------
 KAFKA_BROKER_URLS = env.list("KAFKA_BROKER_URLS")
 KAFKA_GROUP_ID = env("KAFKA_GROUP_ID")
