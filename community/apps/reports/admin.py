@@ -1,6 +1,3 @@
-from django.contrib import admin
-
-from community.apps.reports.models.index import Report, ReportChoice, ReportGroup
 from community.bases.admin import Admin
 
 
