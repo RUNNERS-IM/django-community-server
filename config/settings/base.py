@@ -1,6 +1,7 @@
 """
 Base settings to build other settings files upon.
 """
+
 import logging
 import os
 import urllib.parse
@@ -157,6 +158,7 @@ THIRD_PARTY_APPS = [
 ]
 
 LOCAL_APPS = [
+    "community.bases.apps.BasesConfig",
     "community.apps.badges.apps.BadgesConfig",
     "community.apps.bans.apps.BansConfig",
     "community.apps.boards.apps.BoardsConfig",
@@ -275,7 +277,7 @@ FIXTURE_DIRS = (str(APPS_DIR / "fixtures"),)
 # 16. SECURITY
 # ------------------------------------------------------------------------------
 SECRET_KEY = env("DJANGO_SECRET_KEY")
-ALLOWED_HOSTS = env("ALLOWED_HOSTS", default="*").split(' ')
+ALLOWED_HOSTS = env("ALLOWED_HOSTS", default="*").split(" ")
 SESSION_COOKIE_HTTPONLY = True
 CSRF_COOKIE_HTTPONLY = True
 CSRF_TRUSTED_ORIGINS = [
@@ -301,13 +303,7 @@ ADMIN_URL = env("DJANGO_ADMIN_URL", default="admin/")
 ADMINS = [("""RUNNERS""", "admin@runners.im")]
 MANAGERS = ADMINS
 
-ADMIN_MASTER_REORDER = (
-    "community_users",
-    "boards",
-    "posts",
-    "comments",
-    "rankings"
-)
+ADMIN_MASTER_REORDER = ("community_users", "boards", "posts", "comments", "rankings")
 ADMIN_USER_REORDER = (
     "community_users",
     "boards",
@@ -369,6 +365,14 @@ REST_FRAMEWORK = {
         "rest_framework.authentication.SessionAuthentication",
         "rest_framework.authentication.TokenAuthentication",
     ),
+    "DEFAULT_THROTTLE_CLASSES": [
+        "rest_framework.throttling.AnonRateThrottle",
+        "rest_framework.throttling.UserRateThrottle",
+    ],
+    "DEFAULT_THROTTLE_RATES": {
+        "anon": "50/second",
+        "user": "50/second",
+    },
     "DEFAULT_PERMISSION_CLASSES": ("rest_framework.permissions.AllowAny",),
     "EXCEPTION_HANDLER": "community.utils.exception_handlers.exception_handler",
     "NON_FIELD_ERRORS_KEY": "non_field_errors",
@@ -424,7 +428,9 @@ SWAGGER_SETTINGS = {
         "Token": {
             "type": "apiKey",
             "description": _(
-                "서버에서 발급한 토큰을 기반으로 한 인증 방식입니다. 'Token NTY3ODkwIiwibmFtZSI6I...'와 같이 입력해주세요.<br/>토큰이 세션보다 우선적으로 사용됩니다.<br/>"),
+                "서버에서 발급한 토큰을 기반으로 한 인증 방식입니다."
+                "'Token NTY3ODkwIiwibmFtZSI6I...'와 같이 입력해주세요.<br/>토큰이 세션보다 우선적으로 사용됩니다.<br/>"
+            ),
             "name": "Authorization",
             "in": "header",
         },
@@ -471,14 +477,25 @@ if REDIS_URL:
     CACHES = {
         "default": {
             "BACKEND": "django_redis.cache.RedisCache",
-            "LOCATION": f"{REDIS_URL}/5",
+            "LOCATION": f"{REDIS_URL}/1",
             "OPTIONS": {
                 "CLIENT_CLASS": "django_redis.client.DefaultClient",
                 "IGNORE_EXCEPTIONS": True,
                 "REPLICA_SET": {
-                    "urls": [f"{REDIS_REPLICA_URL}/5"] if REDIS_REPLICA_URL else [],
+                    "urls": [f"{REDIS_REPLICA_URL}/1"] if REDIS_REPLICA_URL else [],
+                },
+                "CONNECTION_POOL_KWARGS": {
+                    "socket_connect_timeout": 5,
+                    "socket_timeout": 5,
                 },
             },
+        }
+    }
+else:
+    CACHES = {
+        "default": {
+            "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+            "LOCATION": "unique-snowflake",
         }
     }
 
@@ -514,3 +531,10 @@ if SENTRY_DSN := env("SENTRY_DSN", default=None):
 # 33. Creta
 # ------------------------------------------------------------------------------
 CRETA_AUTH_BASE_URL = env("CRETA_AUTH_BASE_URL")
+
+# KAFKA
+# ------------------------------------------------------------------------------
+KAFKA_BROKER_URLS = env.list("KAFKA_BROKER_URLS")
+KAFKA_GROUP_ID = env("KAFKA_GROUP_ID")
+KAFKA_SASL_USERNAME = env("KAFKA_SASL_USERNAME")
+KAFKA_SASL_PASSWORD = env("KAFKA_SASL_PASSWORD")
