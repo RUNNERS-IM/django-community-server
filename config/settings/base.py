@@ -477,12 +477,12 @@ if REDIS_URL:
     CACHES = {
         "default": {
             "BACKEND": "django_redis.cache.RedisCache",
-            "LOCATION": f"{REDIS_URL}/1",
+            "LOCATION": f"{REDIS_URL}/5",
             "OPTIONS": {
                 "CLIENT_CLASS": "django_redis.client.DefaultClient",
                 "IGNORE_EXCEPTIONS": True,
                 "REPLICA_SET": {
-                    "urls": [f"{REDIS_REPLICA_URL}/1"] if REDIS_REPLICA_URL else [],
+                    "urls": [f"{REDIS_REPLICA_URL}/5"] if REDIS_REPLICA_URL else [],
                 },
                 "CONNECTION_POOL_KWARGS": {
                     "socket_connect_timeout": 5,
