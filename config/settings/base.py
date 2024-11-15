@@ -477,12 +477,12 @@ if REDIS_URL:
     CACHES = {
         "default": {
             "BACKEND": "django_redis.cache.RedisCache",
-            "LOCATION": f"{REDIS_URL}/1",
+            "LOCATION": f"{REDIS_URL}/5",
             "OPTIONS": {
                 "CLIENT_CLASS": "django_redis.client.DefaultClient",
                 "IGNORE_EXCEPTIONS": True,
                 "REPLICA_SET": {
-                    "urls": [f"{REDIS_REPLICA_URL}/1"] if REDIS_REPLICA_URL else [],
+                    "urls": [f"{REDIS_REPLICA_URL}/5"] if REDIS_REPLICA_URL else [],
                 },
                 "CONNECTION_POOL_KWARGS": {
                     "socket_connect_timeout": 5,
@@ -527,11 +527,6 @@ if SENTRY_DSN := env("SENTRY_DSN", default=None):
         integrations=integrations,
         traces_sample_rate=env.float("SENTRY_TRACES_SAMPLE_RATE", default=1.0),
     )
-
-# 33. Creta
-# ------------------------------------------------------------------------------
-CRETA_AUTH_BASE_URL = env("CRETA_AUTH_BASE_URL")
-
 
 # 34. KAFKA
 # ------------------------------------------------------------------------------
