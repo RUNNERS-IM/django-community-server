@@ -1,8 +1,11 @@
+import asyncio
 import json
+import logging
 import ssl
 from abc import ABC, abstractmethod
 
 from aiokafka import AIOKafkaConsumer, AIOKafkaProducer
+from aiokafka.errors import KafkaError, NoBrokersAvailable, KafkaConnectionError
 
 from config.settings.base import (
     KAFKA_BROKER_URLS,
@@ -46,7 +49,7 @@ class KafkaConsumerService(ABC):
         """
         self.consumer = AIOKafkaConsumer(
             self.topic,
-            bootstrap_servers=KAFKA_BROKER_URLS,
+            bootstrap_servers=self.servers,
             group_id=self.group_id,
             security_protocol="SASL_SSL",
             sasl_mechanism="SCRAM-SHA-512",
@@ -69,16 +72,42 @@ class KafkaConsumerService(ABC):
         Kafka 토픽에서 메시지를 소비하고,
         하위 클래스에서 정의된 process_message()를 통해 처리합니다.
         """
-        await self.start_consumer()
+        while True:
+            try:
+                await self.start_consumer()
+                if not self.consumer:
+                    raise Exception("Consumer is not initialized")
 
-        if not self.consumer:
-            raise Exception("Consumer is not initialized")
+                async for msg in self.consumer:
+                    try:
+                        print(f"{self.topic} Topic's Value : {msg}")
+                        await self.process_message(msg)
+                    except Exception as e:
+                        print(f"An error occurred while processing message: {e}")
+            except (KafkaError, NoBrokersAvailable, KafkaConnectionError) as e:
+                logging.error(f"Kafka connection error: {e}")
+                await self.reconnect()
+            finally:
+                await self.stop_consumer()
 
-        try:
-            async for msg in self.consumer:
-                await self.process_message(msg)
-        finally:
-            await self.stop_consumer()
+    async def reconnect(self):
+        """
+        Kafka와의 연결이 끊어졌을 때 재연결을 시도합니다.
+        """
+        max_retries = 5
+        retry_count = 0
+        while retry_count < max_retries:
+            try:
+                await self.start_consumer()
+                logging.info("Reconnected to Kafka broker successfully.")
+                break
+            except (KafkaError, NoBrokersAvailable, KafkaConnectionError) as e:
+                retry_count += 1
+                logging.error(f"Retry {retry_count}/{max_retries}: Unable to reconnect to Kafka. Error: {e}")
+                await asyncio.sleep(2**retry_count)
+
+        if retry_count == max_retries:
+            logging.error("Failed to reconnect to Kafka after multiple attempts.")
 
     @abstractmethod
     async def process_message(self, msg):
