@@ -520,10 +520,6 @@ if SENTRY_DSN := env("SENTRY_DSN", default=None):
         traces_sample_rate=env.float("SENTRY_TRACES_SAMPLE_RATE", default=0.01),
     )
 
-# 33. Creta
-# ------------------------------------------------------------------------------
-CRETA_AUTH_BASE_URL = env("CRETA_AUTH_BASE_URL")
-
 # KAFKA
 # ------------------------------------------------------------------------------
 KAFKA_BROKER_URLS = env.list("KAFKA_BROKER_URLS")
