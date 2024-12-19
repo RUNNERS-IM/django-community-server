@@ -168,6 +168,7 @@ LOCAL_APPS = [
     "community.apps.community_posts.apps.CommunityPostsConfig",
     "community.apps.community_users.apps.CommunityUsersConfig",
     "community.apps.comments.apps.CommentsConfig",
+    "community.apps.emojis.apps.EmojisConfig",
     "community.apps.friends.apps.FriendsConfig",
     "community.apps.likes.apps.LikesConfig",
     "community.apps.post_tags.apps.PostTagsConfig",
