@@ -20,7 +20,7 @@ class CommentEmojiModelMixin(models.Model):
             # Get or Create profile
             profile = community.profiles.select_for_update().filter(user=user).first()
             if not profile:
-                profile = Profile.objects.create(community=community, user=user, is_joined=False)
+                profile = Profile.objects.create(community=community, user=user)
 
             # Update or create emoji
             comment_emoji, _ = CommentEmoji.objects.update_or_create(

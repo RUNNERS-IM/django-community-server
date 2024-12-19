@@ -74,7 +74,6 @@ def post_pre_save_sync_post(sender, instance, *args, **kwargs):
                 if _value != value:
                     print("========================= sync_post_task =========================")
                     try:
-                        return
                         sync_post_task.apply_async((instance.id,), countdown=2)
                     except BaseException:
                         pass
