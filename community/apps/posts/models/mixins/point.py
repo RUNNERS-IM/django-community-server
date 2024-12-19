@@ -6,7 +6,7 @@ from django.utils.translation import gettext_lazy as _
 # Main Section
 class PostPointModelMixin(models.Model):
     point = models.IntegerField(_("Point"), default=0)
-
+    emoji_point = models.IntegerField(_("Emoji Point"), default=0)
     visit_point = models.IntegerField(_("Visit Point"), default=0)
     comment_point = models.IntegerField(_("Comment Point"), default=0)
     bookmark_point = models.IntegerField(_("Bookmark Point"), default=0)
@@ -18,3 +18,13 @@ class PostPointModelMixin(models.Model):
 
     def update_post_point(self):
         self.point = self.visit_point + self.comment_point + self.bookmark_point + self.like_point + self.dislike_point
+
+    def set_point(self):
+        self.point = (
+            self.dislike_point
+            + self.like_point
+            + self.bookmark_point
+            + self.comment_point
+            + self.visit_point
+            + self.emoji_point
+        )
