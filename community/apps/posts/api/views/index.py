@@ -28,7 +28,7 @@ from community.apps.posts.api.views.mixins import (
     PostLikeViewMixin,
     PostReportViewMixin,
     PostShareViewMixin,
-    PostTagViewMixin,
+    PostTagViewMixin, PostEmojiViewMixin,
 )
 
 # Permissions
@@ -129,6 +129,7 @@ class PostViewSet(
     PostBookmarkViewMixin,
     PostLikeViewMixin,
     PostReportViewMixin,
+    PostEmojiViewMixin,
     GenericViewSet,
 ):
     serializers = {

@@ -14,13 +14,13 @@ class CommentEmojiModelMixin(models.Model):
         abstract = True
 
     def emoji_comment(self, user, emoji_unicode):
-        club = self.club
+        community = self.community
 
         with transaction.atomic():
             # Get or Create profile
-            profile = club.profiles.select_for_update().filter(user=user).first()
+            profile = community.profiles.select_for_update().filter(user=user).first()
             if not profile:
-                profile = Profile.objects.create(club=club, user=user, is_joined=False)
+                profile = Profile.objects.create(community=community, user=user, is_joined=False)
 
             # Update or create emoji
             comment_emoji, _ = CommentEmoji.objects.update_or_create(

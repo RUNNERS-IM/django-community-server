@@ -28,7 +28,7 @@ class ProfileEmojiModelMixin(models.Model):
         self.posts_emoji_point = self.posts_emoji_count * POINT_PER_POST_LIKE
         self.add_emoji_point()
         self.level = math.floor(self.point**POINT_PER_PROFILE_LEVEL) + 1
-        self.save(update_fields=["posts_emoji_count", "posts_emoji_point", "point"])
+        self.save(update_fields=["posts_emoji_count", "posts_emoji_point", "point", "level"])
 
     def update_profile_comments_emoji_count(self):
         self.comments_emoji_count = self.comment_emojis.count()
@@ -37,4 +37,4 @@ class ProfileEmojiModelMixin(models.Model):
         self.comments_emoji_point = self.comments_emoji_count * POINT_PER_COMMENT_LIKE
         self.add_emoji_point()
         self.level = math.floor(self.point**POINT_PER_PROFILE_LEVEL) + 1
-        self.save(update_fields=["comments_emoji_count", "comments_emoji_point", "point"])
+        self.save(update_fields=["comments_emoji_count", "comments_emoji_point", "point", "level"])

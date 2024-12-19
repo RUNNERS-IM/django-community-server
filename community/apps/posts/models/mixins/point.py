@@ -18,13 +18,3 @@ class PostPointModelMixin(models.Model):
 
     def update_post_point(self):
         self.point = self.visit_point + self.comment_point + self.bookmark_point + self.like_point + self.dislike_point
-
-    def set_point(self):
-        self.point = (
-            self.dislike_point
-            + self.like_point
-            + self.bookmark_point
-            + self.comment_point
-            + self.visit_point
-            + self.emoji_point
-        )

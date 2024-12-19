@@ -16,13 +16,13 @@ class PostEmojiModelMixin(models.Model):
         abstract = True
 
     def emoji_post(self, user, emoji_unicode):
-        club = self.club
+        community = self.community
 
         with transaction.atomic():
             # Get or Create profile
-            profile = club.profiles.select_for_update().filter(user=user).first()
+            profile = community.profiles.select_for_update().filter(user=user).first()
             if not profile:
-                profile = Profile.objects.create(club=club, user=user, is_joined=False)
+                profile = Profile.objects.create(community=community, user=user)
 
             # Update or create emoji
             post_emoji, _ = PostEmoji.objects.update_or_create(
@@ -49,7 +49,7 @@ class PostEmojiModelMixin(models.Model):
     def update_post_emoji_count(self):
         self.emoji_count = self.post_emojis.count()
         self.emoji_point = self.emoji_count * POINT_PER_POST_LIKE
-        self.point += self.emoji_point
+        self.set_point()
         self.save(update_fields=["emoji_count", "emoji_point", "point"])
 
     def update_comments_emoji_count(self):
