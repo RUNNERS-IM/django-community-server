@@ -104,7 +104,7 @@ class KafkaConsumerService(ABC):
             except (KafkaError, NoBrokersAvailable, KafkaConnectionError) as e:
                 retry_count += 1
                 logging.error(f"Retry {retry_count}/{max_retries}: Unable to reconnect to Kafka. Error: {e}")
-                await asyncio.sleep(2 ** retry_count)
+                await asyncio.sleep(2**retry_count)
 
         if retry_count == max_retries:
             logging.error("Failed to reconnect to Kafka after multiple attempts.")

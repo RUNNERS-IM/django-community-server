@@ -466,39 +466,31 @@ CELERY_BROKER_TRANSPORT_OPTIONS = {
     "visibility_timeout": 3600,
     "polling_interval": 60,
     "CELERYD_PREFETCH_MULTIPLIER": 0,
-    "queue_name_prefix": f"forumcategory-{ENVIRONMENT}-",
+    "queue_name_prefix": f"clubcategory-{ENVIRONMENT}-",
 }
 
 # 30. Redis
 # ------------------------------------------------------------------------------
-REDIS_URL = env("REDIS_URL", default=None)
+REDIS_URL = env("REDIS_URL")
 REDIS_REPLICA_URL = env("REDIS_REPLICA_URL", default=None)
 
-if REDIS_URL:
-    CACHES = {
-        "default": {
-            "BACKEND": "django_redis.cache.RedisCache",
-            "LOCATION": f"{REDIS_URL}/5",
-            "OPTIONS": {
-                "CLIENT_CLASS": "django_redis.client.DefaultClient",
-                "IGNORE_EXCEPTIONS": True,
-                "REPLICA_SET": {
-                    "urls": [f"{REDIS_REPLICA_URL}/5"] if REDIS_REPLICA_URL else [],
-                },
-                "CONNECTION_POOL_KWARGS": {
-                    "socket_connect_timeout": 5,
-                    "socket_timeout": 5,
-                },
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": f"{REDIS_URL}/1",
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+            "IGNORE_EXCEPTIONS": True,
+            "REPLICA_SET": {
+                "urls": [f"{REDIS_REPLICA_URL}/1"] if REDIS_REPLICA_URL else [],
             },
-        }
+            "CONNECTION_POOL_KWARGS": {
+                "socket_connect_timeout": 5,
+                "socket_timeout": 5,
+            },
+        },
     }
-else:
-    CACHES = {
-        "default": {
-            "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
-            "LOCATION": "unique-snowflake",
-        }
-    }
+}
 
 # 31. External API
 # ------------------------------------------------------------------------------
@@ -526,12 +518,9 @@ if SENTRY_DSN := env("SENTRY_DSN", default=None):
     sentry_sdk.init(
         dsn=SENTRY_DSN,
         integrations=integrations,
-        traces_sample_rate=env.float("SENTRY_TRACES_SAMPLE_RATE", default=1.0),
+        send_default_pii=True,
+        traces_sample_rate=env.float("SENTRY_TRACES_SAMPLE_RATE", default=0.01),
     )
-
-# 33. Creta
-# ------------------------------------------------------------------------------
-CRETA_AUTH_BASE_URL = env("CRETA_AUTH_BASE_URL")
 
 
 # 34. KAFKA
